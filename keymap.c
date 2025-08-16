@@ -15,7 +15,7 @@
  */
 #include QMK_KEYBOARD_H
 
-// RGB underglow configuration  
+// RGB underglow configuration
 void keyboard_post_init_user(void) {
     // Enable RGB and set to soft apricot color
     rgblight_enable();
@@ -27,7 +27,7 @@ void keyboard_post_init_user(void) {
 void update_rgb_state(void) {
     uint8_t layer = get_highest_layer(layer_state);
     bool caps_on = host_keyboard_led_state().caps_lock;
-    
+
     if (caps_on) {
         // Caps Lock is on - bright red (overrides layer colors)
         rgblight_sethsv_noeeprom(0, 255, 255);  // H=0 (red), S=255, V=255
@@ -90,13 +90,13 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_PSCR, KC_SCRL, KC_TRNS, KC_TRNS, KC_END,
     KC_CAPS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, RGB_HUI, RGB_HUD, RGB_SAI, RGB_SAD, RGB_VAI, RGB_VAD, KC_TRNS, KC_VOLU,
     KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_PGUP, KC_VOLD,
-    KC_TRNS, AG_LNRM, AG_LSWP,                            KC_MPLY,                   RGB_TOG, KC_TRNS, KC_HOME, KC_PGDN, KC_END 
+    KC_TRNS, AG_LNRM, AG_LSWP,                            KC_MPLY,                   RGB_TOG, KC_TRNS, KC_HOME, KC_PGDN, KC_END
 ),
 [2] = LAYOUT_65_ansi_blocker(
     QK_BOOT, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
     KC_TRNS, KC_HOME, KC_UP  , KC_END , KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
-    KC_TRNS, KC_LEFT, KC_DOWN, KC_RIGHT, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
+    KC_TRNS, KC_LEFT, KC_DOWN, KC_RIGHT, KC_TRNS, KC_TRNS, KC_LEFT,KC_DOWN, KC_UP  , KC_RIGHT, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS,
     KC_TRNS, LCAG(KC_Z), KC_TRNS, LCAG(KC_V), KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_TRNS, KC_PGUP, KC_TRNS,
-    KC_TRNS, KC_TRNS, KC_TRNS,                            KC_TRNS,                   KC_TRNS, KC_TRNS, KC_HOME, KC_PGDN, KC_END 
+    KC_TRNS, KC_TRNS, KC_TRNS,                            KC_TRNS,                   KC_TRNS, KC_TRNS, KC_HOME, KC_PGDN, KC_END
 )
 };
