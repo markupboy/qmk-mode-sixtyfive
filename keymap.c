@@ -17,10 +17,10 @@
 
 // RGB underglow configuration
 void keyboard_post_init_user(void) {
-    // Enable RGB and set to soft apricot color
+    // Enable RGB and set to pure white color
     rgblight_enable();
     rgblight_mode(1);  // Static light mode (mode 1)
-    rgblight_sethsv(15, 200, 255);  // Soft apricot: H=15 (more orange), S=200 (more saturated), V=255
+    rgblight_sethsv(0, 0, 255);  // Pure white: H=0, S=0, V=255
 }
 
 // Update RGB based on layer and caps lock state
@@ -35,8 +35,8 @@ void update_rgb_state(void) {
         // Set color based on active layer
         switch (layer) {
             case 0:
-                // Layer 0 (base) - soft apricot
-                rgblight_sethsv_noeeprom(15, 200, 255);  // H=15 (apricot), S=200, V=255
+                // Layer 0 (base) - pure white
+                rgblight_sethsv_noeeprom(0, 0, 255);  // H=0, S=0, V=255 (pure white)
                 break;
             case 1:
                 // Layer 1 (Fn) - hot pink
@@ -47,8 +47,8 @@ void update_rgb_state(void) {
                 rgblight_sethsv_noeeprom(170, 255, 255);  // H=170 (electric blue), S=255, V=255
                 break;
             default:
-                // Fallback to apricot
-                rgblight_sethsv_noeeprom(15, 200, 255);
+                // Fallback to pure white
+                rgblight_sethsv_noeeprom(0, 0, 255);
                 break;
         }
     }
