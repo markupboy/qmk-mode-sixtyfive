@@ -66,36 +66,29 @@ layer_state_t layer_state_set_user(layer_state_t state) {
     return state;
 }
 
-// Tap Dance declarations
-enum {
-    TD_CTRL_CAPS,
-};
-
-// Tap Dance definitions
+// Empty tap dance array (required when TAP_DANCE_ENABLE = yes)
 tap_dance_action_t tap_dance_actions[] = {
-    // Tap once for Escape, twice for Caps Lock
-    [TD_CTRL_CAPS] = ACTION_TAP_DANCE_DOUBLE(KC_LCTL, KC_CAPS),
 };
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 [0] = LAYOUT_65_ansi_blocker(
     QK_GESC, KC_1   , KC_2   , KC_3   , KC_4  , KC_5    , KC_6   , KC_7   , KC_8   , KC_9   , KC_0   , KC_MINS, KC_EQL , KC_BSPC, KC_DEL ,
     KC_TAB , KC_Q   , KC_W   , KC_E   , KC_R  , KC_T    , KC_Y   , KC_U   , KC_I   , KC_O   , KC_P   , KC_LBRC, KC_RBRC, KC_BSLS, KC_HOME,
-    TD(TD_CTRL_CAPS), KC_A   , KC_S   , KC_D  , KC_F    , KC_G   , KC_H   , KC_J   , KC_K   , KC_L   , KC_SCLN, KC_QUOT, KC_ENT , KC_PGUP,
+    KC_LCTL, KC_A   , KC_S   , KC_D   , KC_F  , KC_G    , KC_H   , KC_J   , KC_K   , KC_L   , KC_SCLN, KC_QUOT, KC_ENT          , KC_PGUP,
     KC_LSFT, KC_Z   , KC_X   , KC_C   , KC_V  , KC_B    , KC_N   , KC_M   , KC_COMM, KC_DOT , KC_SLSH, KC_RSFT,          KC_UP  , KC_PGDN,
     MO(2)  , KC_LGUI, KC_LALT,                            KC_SPC ,                   KC_RALT, MO(1)  ,          KC_LEFT, KC_DOWN, KC_RGHT
 ),
 [1] = LAYOUT_65_ansi_blocker(
     KC_GRV , KC_F1  , KC_F2  , KC_F3  , KC_F4  , KC_F5  , KC_F6  , KC_F7  , KC_F8  , KC_F9  , KC_F10 , KC_F11 , KC_F12 , _______, KC_MUTE,
     _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, KC_PSCR, KC_SCRL, _______, _______, KC_END,
-    KC_CAPS         , _______, _______, _______, _______, _______, RGB_HUI, RGB_HUD, RGB_SAI, RGB_SAD, RGB_VAI, RGB_VAD, _______, KC_VOLU,
-    _______, _______, _______, _______, _______, QK_BOOT, _______, _______, _______, _______, _______, _______,          KC_PGUP, KC_VOLD,
+    KC_CAPS, _______, _______, _______, _______, _______, RGB_HUI, RGB_HUD, RGB_SAI, RGB_SAD, RGB_VAI, RGB_VAD, _______         , KC_VOLU,
+    AS_TOGG, _______, _______, _______, _______, QK_BOOT, _______, _______, _______, _______, _______, _______,          KC_PGUP, KC_VOLD,
     _______, AG_LNRM, AG_LSWP,                            KC_MPLY,                   RGB_TOG, _______,          KC_HOME, KC_PGDN, KC_END
 ),
 [2] = LAYOUT_65_ansi_blocker(
     KC_GRV, _______    , _______, _______ , _______   , _______, _______, _______, _______, _______ , _______, _______, _______, _______, _______,
     _______, KC_HOME   , KC_UP  , KC_END  , _______   , _______, _______, _______, _______, _______ , _______, _______, _______, _______, _______,
-    _______         , KC_LEFT   , KC_DOWN, KC_RIGHT, _______   , _______, KC_LEFT, KC_DOWN, KC_UP  , KC_RIGHT, _______, _______, _______, _______,
+    _______, KC_LEFT   , KC_DOWN, KC_RIGHT, _______   , _______, KC_LEFT, KC_DOWN, KC_UP  , KC_RIGHT, _______, _______, _______         , _______,
     _______, LCAG(KC_Z), _______, _______ , LCAG(KC_V), QK_BOOT, _______, _______, _______, _______ , _______, _______,          KC_PGUP, _______,
     _______, _______   , _______,                            _______,                       _______, _______,           KC_HOME, KC_PGDN, KC_END
 )
