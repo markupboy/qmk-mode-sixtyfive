@@ -17,10 +17,10 @@
 
 // RGB underglow configuration
 void keyboard_post_init_user(void) {
-    // Enable RGB and set to pure white color
+    // Enable RGB and set to custom coral color
     rgblight_enable();
     rgblight_mode(1);  // Static light mode (mode 1)
-    rgblight_sethsv(0, 0, 255);  // Pure white: H=0, S=0, V=255
+    rgblight_sethsv(8, 148, 207);  // Custom coral: RGB(207,103,87) -> H=8, S=148, V=207
 }
 
 // Update RGB based on layer and caps lock state
@@ -35,8 +35,8 @@ void update_rgb_state(void) {
         // Set color based on active layer
         switch (layer) {
             case 0:
-                // Layer 0 (base) - pure white
-                rgblight_sethsv_noeeprom(0, 0, 255);  // H=0, S=0, V=255 (pure white)
+                // Layer 0 (base) - custom coral color
+                rgblight_sethsv_noeeprom(8, 148, 207);  // RGB(207,103,87) -> H=8, S=148, V=207
                 break;
             case 1:
                 // Layer 1 (Fn) - hot pink
@@ -47,8 +47,8 @@ void update_rgb_state(void) {
                 rgblight_sethsv_noeeprom(170, 255, 255);  // H=170 (electric blue), S=255, V=255
                 break;
             default:
-                // Fallback to pure white
-                rgblight_sethsv_noeeprom(0, 0, 255);
+                // Fallback to custom coral color
+                rgblight_sethsv_noeeprom(8, 148, 207);
                 break;
         }
     }
