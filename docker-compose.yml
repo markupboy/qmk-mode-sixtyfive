@@ -1,0 +1,26 @@
+version: '3.8'
+
+services:
+  qmk-build:
+    build: .
+    container_name: qmk-markupboy-keymap
+    volumes:
+      - .:/qmk_firmware/keyboards/mode/m256wh/keymaps/markupboy
+      - ./build:/qmk_firmware/build
+    environment:
+      - QMK_KEYBOARD=mode/m256wh
+      - QMK_KEYMAP=markupboy
+    command: bash -c "qmk compile -kb mode/m256wh -km markupboy && cp mode_m256wh_markupboy.* /qmk_firmware/build/ 2>/dev/null || find . -name 'mode_m256wh_markupboy.*' -exec cp {} /qmk_firmware/build/ \\;"
+
+  qmk-shell:
+    build: .
+    container_name: qmk-markupboy-shell
+    volumes:
+      - .:/qmk_firmware/keyboards/mode/m256wh/keymaps/markupboy
+      - ./build:/qmk_firmware/build
+    environment:
+      - QMK_KEYBOARD=mode/m256wh
+      - QMK_KEYMAP=markupboy
+    command: /bin/bash
+    tty: true
+    stdin_open: true

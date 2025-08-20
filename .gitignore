@@ -1,0 +1,32 @@
+# Build artifacts
+build/
+*.bin
+*.hex
+*.elf
+*.uf2
+*.map
+
+# QMK build files
+.build/
+*.o
+*.d
+*.lst
+*.sym
+*.lss
+
+# Docker volumes and cache
+.docker/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Logs
+*.log
