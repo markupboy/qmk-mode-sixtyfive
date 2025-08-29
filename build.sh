@@ -16,8 +16,19 @@ build_keymap() {
         cp "${keymap_file}" keymap.c
     fi
     
+    # Copy variant-specific rules.mk if it exists
+    if [ -f "rules_${variant}.mk" ]; then
+        echo "Using gaming-optimized rules for ${variant} variant..."
+        cp "rules_${variant}.mk" rules.mk
+    fi
+    
     # Build using Docker
     docker run --rm -v ${PWD}:/qmk_firmware/keyboards/mode/m256wh/keymaps/markupboy qmk-markupboy bash -c "qmk compile -kb mode/m256wh -km markupboy && cp mode_m256wh_markupboy.* /qmk_firmware/keyboards/mode/m256wh/keymaps/markupboy/build/ 2>/dev/null || find . -name 'mode_m256wh_markupboy.*' -exec cp {} /qmk_firmware/keyboards/mode/m256wh/keymaps/markupboy/build/ \;"
+    
+    # Restore original rules.mk after Windows build
+    if [ -f "rules_${variant}.mk" ] && [ "$variant" = "windows" ]; then
+        git checkout rules.mk 2>/dev/null || echo "TAP_DANCE_ENABLE = yes\nRGBLIGHT_ENABLE = yes\nAUTO_SHIFT_ENABLE = yes\nCAPS_WORD_ENABLE = yes\n" > rules.mk
+    fi
     
     # Rename files with variant suffix
     for file in build/mode_m256wh_markupboy.*; do

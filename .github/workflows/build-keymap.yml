@@ -36,9 +36,11 @@ jobs:
         mkdir -p build
         docker build -t qmk-markupboy .
         
-        # For Windows variant, copy the Windows keymap file, for Mac use default
+        # For Windows variant, copy the Windows keymap file and gaming-optimized rules
         if [ "${{ matrix.variant }}" = "windows" ]; then
           cp keymap_windows.c keymap.c
+          cp rules_windows.mk rules.mk
+          echo "Using gaming-optimized rules for Windows variant"
         fi
         
         docker run --rm -v ${PWD}:/qmk_firmware/keyboards/mode/m256wh/keymaps/markupboy qmk-markupboy bash -c "qmk compile -kb mode/m256wh -km markupboy && cp mode_m256wh_markupboy.* /qmk_firmware/keyboards/mode/m256wh/keymaps/markupboy/build/ 2>/dev/null || find . -name 'mode_m256wh_markupboy.*' -exec cp {} /qmk_firmware/keyboards/mode/m256wh/keymaps/markupboy/build/ \;"
