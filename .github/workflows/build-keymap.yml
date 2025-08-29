@@ -4,13 +4,13 @@ on:
   push:
     branches: [ main, master ]
     paths:
-      - 'keymap.c'
+      - 'keymap*.c'
       - 'rules.mk'
       - 'config.h'
   pull_request:
     branches: [ main, master ]
     paths:
-      - 'keymap.c'
+      - 'keymap*.c'
       - 'rules.mk'
       - 'config.h'
   workflow_dispatch:
@@ -21,6 +21,9 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        variant: [windows, mac]
     
     steps:
     - name: Checkout keymap repository
@@ -28,35 +31,69 @@ jobs:
       with:
         fetch-depth: 0
       
-    - name: Build keymap with Docker
+    - name: Build ${{ matrix.variant }} keymap with Docker
       run: |
+        mkdir -p build
         docker build -t qmk-markupboy .
-        docker run --rm -v ${PWD}/build:/qmk_firmware/build qmk-markupboy bash -c "qmk compile -kb mode/m256wh -km markupboy && cp mode_m256wh_markupboy.* /qmk_firmware/build/ 2>/dev/null || find . -name 'mode_m256wh_markupboy.*' -exec cp {} /qmk_firmware/build/ \;"
+        
+        # For Windows variant, copy the Windows keymap file, for Mac use default
+        if [ "${{ matrix.variant }}" = "windows" ]; then
+          cp keymap_windows.c keymap.c
+        fi
+        
+        docker run --rm -v ${PWD}:/qmk_firmware/keyboards/mode/m256wh/keymaps/markupboy qmk-markupboy bash -c "qmk compile -kb mode/m256wh -km markupboy && cp mode_m256wh_markupboy.* /qmk_firmware/keyboards/mode/m256wh/keymaps/markupboy/build/ 2>/dev/null || find . -name 'mode_m256wh_markupboy.*' -exec cp {} /qmk_firmware/keyboards/mode/m256wh/keymaps/markupboy/build/ \;"
+        
+        # Rename files with variant suffix
+        for file in build/mode_m256wh_markupboy.*; do
+          if [ -f "$file" ]; then
+            extension="${file##*.}"
+            mv "$file" "build/mode_m256wh_markupboy_${{ matrix.variant }}.${extension}"
+          fi
+        done
         
     - name: List build artifacts
       run: |
-        echo "Built firmware files:"
-        find build/ -name "mode_m256wh_markupboy.*" -type f 2>/dev/null || echo "No firmware files found"
+        echo "Built firmware files for ${{ matrix.variant }}:"
+        find build/ -name "mode_m256wh_markupboy_${{ matrix.variant }}.*" -type f 2>/dev/null || echo "No firmware files found"
         ls -la build/
         
     - name: Upload firmware artifacts
       uses: actions/upload-artifact@v4
       with:
-        name: qmk-firmware-markupboy-${{ github.sha }}
+        name: qmk-firmware-markupboy-${{ matrix.variant }}-${{ github.sha }}
         path: |
-          build/*.bin
-          build/*.hex
-          build/*.uf2
+          build/mode_m256wh_markupboy_${{ matrix.variant }}.*
         retention-days: 30
+
+  release:
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+    needs: build
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout keymap repository
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+        
+    - name: Download all artifacts
+      uses: actions/download-artifact@v4
+      with:
+        path: artifacts/
+        
+    - name: Prepare release files
+      run: |
+        mkdir -p release/
+        cp artifacts/qmk-firmware-markupboy-windows-${{ github.sha }}/mode_m256wh_markupboy_windows.* release/ 2>/dev/null || true
+        cp artifacts/qmk-firmware-markupboy-mac-${{ github.sha }}/mode_m256wh_markupboy_mac.* release/ 2>/dev/null || true
+        ls -la release/
         
     - name: Generate release tag
-      if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
       id: tag
       run: |
         echo "tag=v$(date +'%Y%m%d-%H%M%S')-$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
         
     - name: Create Release
-      if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
       uses: softprops/action-gh-release@v1
       with:
         tag_name: ${{ steps.tag.outputs.tag }}
@@ -65,19 +102,30 @@ jobs:
           ## QMK Firmware Build
           
           **Keyboard:** Mode M256WH  
-          **Keymap:** markupboy  
+          **Keymap:** markupboy (Windows & Mac variants)  
           **Commit:** ${{ github.sha }}  
           **Built:** ${{ github.run_id }}
           
           ### Files
-          - `mode_m256wh_markupboy.bin` - Firmware binary for flashing
+          - `mode_m256wh_markupboy_windows.bin` - Windows variant firmware
+          - `mode_m256wh_markupboy_mac.bin` - Mac variant firmware
+          
+          ### Key Differences
+          **Windows variant:**
+          - Standard Ctrl/Alt layout
+          - Ctrl+C/V/Z shortcuts on Layer 2
+          
+          **Mac variant:**
+          - Command (⌘) and Option (⌥) key layout
+          - Cmd+C/V/Z shortcuts on Layer 2
+          - Alt/GUI keys swapped for Mac convention
           
           ### How to Flash
-          1. Download the `.bin` file
+          1. Download the appropriate `.bin` file for your OS
           2. Use [QMK Toolbox](https://github.com/qmk/qmk_toolbox) or your preferred flashing tool
           3. Flash the firmware to your keyboard
         files: |
-          build/mode_m256wh_markupboy.bin
+          release/*
         draft: false
         prerelease: false
         generate_release_notes: true

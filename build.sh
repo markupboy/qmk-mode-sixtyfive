@@ -3,16 +3,58 @@
 # QMK Keymap Build Script
 set -e
 
-echo "Building QMK firmware for Mode M256WH with markupboy keymap..."
+VARIANT=${1:-"all"}
+
+build_keymap() {
+    local variant=$1
+    local keymap_file=$2
+    
+    echo "Building QMK firmware for Mode M256WH with ${variant} keymap..."
+    
+    # Copy the specific keymap file to keymap.c if provided, otherwise use default
+    if [ -n "$keymap_file" ]; then
+        cp "${keymap_file}" keymap.c
+    fi
+    
+    # Build using Docker
+    docker run --rm -v ${PWD}:/qmk_firmware/keyboards/mode/m256wh/keymaps/markupboy qmk-markupboy bash -c "qmk compile -kb mode/m256wh -km markupboy && cp mode_m256wh_markupboy.* /qmk_firmware/keyboards/mode/m256wh/keymaps/markupboy/build/ 2>/dev/null || find . -name 'mode_m256wh_markupboy.*' -exec cp {} /qmk_firmware/keyboards/mode/m256wh/keymaps/markupboy/build/ \;"
+    
+    # Rename files with variant suffix
+    for file in build/mode_m256wh_markupboy.*; do
+        if [ -f "$file" ]; then
+            extension="${file##*.}"
+            mv "$file" "build/mode_m256wh_markupboy_${variant}.${extension}"
+        fi
+    done
+}
 
 # Create build directory
 mkdir -p build
 
-# Build using Docker
-echo "Building with Docker..."
+# Build Docker image once
+echo "Building Docker image..."
 docker build -t qmk-markupboy .
-docker run --rm -v ${PWD}/build:/qmk_firmware/build qmk-markupboy bash -c "qmk compile -kb mode/m256wh -km markupboy && cp mode_m256wh_markupboy.* /qmk_firmware/build/ 2>/dev/null || find . -name 'mode_m256wh_markupboy.*' -exec cp {} /qmk_firmware/build/ \;"
+
+case $VARIANT in
+    "windows")
+        build_keymap "windows" "keymap_windows.c"
+        ;;
+    "mac")
+        build_keymap "mac"
+        ;;
+    "all")
+        build_keymap "windows" "keymap_windows.c"
+        build_keymap "mac"
+        ;;
+    *)
+        echo "Usage: $0 [windows|mac|all]"
+        echo "  windows - Build Windows variant only"
+        echo "  mac     - Build Mac variant (default keymap)"  
+        echo "  all     - Build both variants (default)"
+        exit 1
+        ;;
+esac
 
 echo "Build complete! Check the 'build' directory for firmware files."
 echo "Built files:"
-find build/ -name "mode_m256wh_markupboy.*" -type f 2>/dev/null || echo "No firmware files found in build directory"
+find build/ -name "mode_m256wh_markupboy_*.*" -type f 2>/dev/null || echo "No firmware files found in build directory"
