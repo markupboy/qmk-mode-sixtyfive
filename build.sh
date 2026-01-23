@@ -7,34 +7,37 @@ VARIANT=${1:-"all"}
 
 build_keymap() {
     local variant=$1
-    local keymap_file=$2
-    
+    local keymap_file=${2:-"keymap.c"}
+
     echo "Building QMK firmware for Mode M256WH with ${variant} keymap..."
-    
-    # Copy the specific keymap file to keymap.c if provided, otherwise use default
-    if [ -n "$keymap_file" ]; then
-        cp "${keymap_file}" keymap.c
-    fi
-    
-    # Copy variant-specific rules.mk if it exists
+
+    # Create temporary build directory to avoid modifying source files
+    local build_context=$(mktemp -d)
+    trap "rm -rf $build_context" RETURN
+
+    # Copy source files to temp directory
+    cp config.h "$build_context/"
+    cp "$keymap_file" "$build_context/keymap.c"
+
+    # Use variant-specific rules.mk if it exists, otherwise use default
     if [ -f "rules_${variant}.mk" ]; then
         echo "Using gaming-optimized rules for ${variant} variant..."
-        cp "rules_${variant}.mk" rules.mk
+        cp "rules_${variant}.mk" "$build_context/rules.mk"
+    else
+        cp rules.mk "$build_context/"
     fi
-    
-    # Build using Docker
-    docker run --rm -v ${PWD}:/qmk_firmware/keyboards/mode/m256wh/keymaps/markupboy qmk-markupboy bash -c "qmk compile -kb mode/m256wh -km markupboy && cp mode_m256wh_markupboy.* /qmk_firmware/keyboards/mode/m256wh/keymaps/markupboy/build/ 2>/dev/null || find . -name 'mode_m256wh_markupboy.*' -exec cp {} /qmk_firmware/keyboards/mode/m256wh/keymaps/markupboy/build/ \;"
-    
-    # Restore original rules.mk after Windows build
-    if [ -f "rules_${variant}.mk" ] && [ "$variant" = "windows" ]; then
-        git checkout rules.mk 2>/dev/null || echo "TAP_DANCE_ENABLE = yes\nRGBLIGHT_ENABLE = yes\nAUTO_SHIFT_ENABLE = yes\nCAPS_WORD_ENABLE = yes\n" > rules.mk
-    fi
-    
-    # Rename files with variant suffix
-    for file in build/mode_m256wh_markupboy.*; do
+
+    # Create build output directory in temp context
+    mkdir -p "$build_context/build"
+
+    # Build using Docker with temp directory
+    docker run --rm -v "${build_context}:/qmk_firmware/keyboards/mode/m256wh/keymaps/markupboy" qmk-markupboy bash -c "qmk compile -kb mode/m256wh -km markupboy && cp mode_m256wh_markupboy.* /qmk_firmware/keyboards/mode/m256wh/keymaps/markupboy/build/ 2>/dev/null || find . -name 'mode_m256wh_markupboy.*' -exec cp {} /qmk_firmware/keyboards/mode/m256wh/keymaps/markupboy/build/ \;"
+
+    # Copy build output back and rename with variant suffix
+    for file in "$build_context"/build/mode_m256wh_markupboy.*; do
         if [ -f "$file" ]; then
             extension="${file##*.}"
-            mv "$file" "build/mode_m256wh_markupboy_${variant}.${extension}"
+            cp "$file" "build/mode_m256wh_markupboy_${variant}.${extension}"
         fi
     done
 }
