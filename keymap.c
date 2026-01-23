@@ -15,6 +15,57 @@
  */
 #include QMK_KEYBOARD_H
 
+// RGB underglow configuration
+void keyboard_post_init_user(void) {
+    // Enable RGB and set to custom coral color
+    rgblight_enable();
+    rgblight_mode(1);  // Static light mode (mode 1)
+    rgblight_sethsv(8, 148, 207);  // Custom coral: RGB(207,103,87) -> H=8, S=148, V=207
+}
+
+// Update RGB based on layer and caps lock state
+void update_rgb_state(void) {
+    uint8_t layer = get_highest_layer(layer_state);
+    bool caps_on = host_keyboard_led_state().caps_lock;
+
+    if (caps_on) {
+        // Caps Lock is on - bright red (overrides layer colors)
+        rgblight_sethsv_noeeprom(0, 255, 255);  // H=0 (red), S=255, V=255
+    } else {
+        // Set color based on active layer
+        switch (layer) {
+            case 0:
+                // Layer 0 (base) - custom coral color
+                rgblight_sethsv_noeeprom(8, 148, 207);  // RGB(207,103,87) -> H=8, S=148, V=207
+                break;
+            case 1:
+                // Layer 1 (Fn) - hot pink
+                rgblight_sethsv_noeeprom(213, 255, 255);  // H=213 (hot pink), S=255, V=255
+                break;
+            case 2:
+                // Layer 2 - electric blue
+                rgblight_sethsv_noeeprom(170, 255, 255);  // H=170 (electric blue), S=255, V=255
+                break;
+            default:
+                // Fallback to custom coral color
+                rgblight_sethsv_noeeprom(8, 148, 207);
+                break;
+        }
+    }
+}
+
+// Change RGB color based on Caps Lock state
+bool led_update_user(led_t led_state) {
+    update_rgb_state();
+    return true;
+}
+
+// Change RGB color based on layer state
+layer_state_t layer_state_set_user(layer_state_t state) {
+    update_rgb_state();
+    return state;
+}
+
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 [0] = LAYOUT_65_ansi_blocker(
     QK_GESC, KC_1   , KC_2   , KC_3   , KC_4  , KC_5    , KC_6   , KC_7   , KC_8   , KC_9   , KC_0   , KC_MINS, KC_EQL , KC_BSPC, KC_DEL ,
