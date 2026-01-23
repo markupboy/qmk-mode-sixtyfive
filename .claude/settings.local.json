@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(gh run list:*)",
+      "Bash(./build.sh:*)",
+      "Bash(docker build:*)",
+      "Bash(docker run:*)"
+    ]
+  }
+}
