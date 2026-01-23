@@ -5,14 +5,16 @@ on:
     branches: [ main, master ]
     paths:
       - 'keymap*.c'
-      - 'rules.mk'
+      - 'rules*.mk'
       - 'config.h'
+      - 'Dockerfile'
   pull_request:
     branches: [ main, master ]
     paths:
       - 'keymap*.c'
-      - 'rules.mk'
+      - 'rules*.mk'
       - 'config.h'
+      - 'Dockerfile'
   workflow_dispatch:
 
 permissions:
@@ -33,18 +35,42 @@ jobs:
       
     - name: Build ${{ matrix.variant }} keymap with Docker
       run: |
+        set -e  # Exit on any error
         mkdir -p build
-        docker build -t qmk-markupboy .
-        
-        # For Windows variant, copy the Windows keymap file and gaming-optimized rules
+
+        # For Windows variant, copy the Windows keymap file and gaming-optimized rules BEFORE docker build
         if [ "${{ matrix.variant }}" = "windows" ]; then
+          echo "Setting up Windows variant files..."
           cp keymap_windows.c keymap.c
           cp rules_windows.mk rules.mk
           echo "Using gaming-optimized rules for Windows variant"
+        else
+          echo "Using default Mac variant files (keymap.c and rules.mk)"
         fi
-        
-        docker run --rm -v ${PWD}:/qmk_firmware/keyboards/mode/m256wh/keymaps/markupboy qmk-markupboy bash -c "qmk compile -kb mode/m256wh -km markupboy && cp mode_m256wh_markupboy.* /qmk_firmware/keyboards/mode/m256wh/keymaps/markupboy/build/ 2>/dev/null || find . -name 'mode_m256wh_markupboy.*' -exec cp {} /qmk_firmware/keyboards/mode/m256wh/keymaps/markupboy/build/ \;"
-        
+
+        # Show which files will be compiled
+        echo "=== keymap.c being compiled ==="
+        head -30 keymap.c
+        echo "=== rules.mk being used ==="
+        cat rules.mk
+        echo "==="
+
+        # Build Docker image with the correct variant files
+        docker build -t qmk-markupboy-${{ matrix.variant }} .
+
+        # Run compilation
+        docker run --rm -v ${PWD}/build:/output qmk-markupboy-${{ matrix.variant }} bash -c "
+          set -e
+          qmk compile -kb mode/m256wh -km markupboy
+          echo 'Compiled firmware files:'
+          find /qmk_firmware -name 'mode_m256wh_markupboy.*' -type f
+          cp /qmk_firmware/mode_m256wh_markupboy.* /output/ || find /qmk_firmware -name 'mode_m256wh_markupboy.*' -type f -exec cp {} /output/ \;
+        "
+
+        # Verify files were created
+        echo "Files in build directory:"
+        ls -la build/
+
         # Rename files with variant suffix
         for file in build/mode_m256wh_markupboy.*; do
           if [ -f "$file" ]; then
@@ -52,6 +78,10 @@ jobs:
             mv "$file" "build/mode_m256wh_markupboy_${{ matrix.variant }}.${extension}"
           fi
         done
+
+        # Verify renamed files
+        echo "Renamed files:"
+        ls -la build/
         
     - name: List build artifacts
       run: |
@@ -85,9 +115,19 @@ jobs:
         
     - name: Prepare release files
       run: |
+        set -e
         mkdir -p release/
-        cp artifacts/qmk-firmware-markupboy-windows-${{ github.sha }}/mode_m256wh_markupboy_windows.* release/ 2>/dev/null || true
-        cp artifacts/qmk-firmware-markupboy-mac-${{ github.sha }}/mode_m256wh_markupboy_mac.* release/ 2>/dev/null || true
+
+        echo "Downloaded artifacts structure:"
+        find artifacts/ -type f
+
+        echo "Copying Windows firmware..."
+        cp artifacts/qmk-firmware-markupboy-windows-${{ github.sha }}/mode_m256wh_markupboy_windows.* release/
+
+        echo "Copying Mac firmware..."
+        cp artifacts/qmk-firmware-markupboy-mac-${{ github.sha }}/mode_m256wh_markupboy_mac.* release/
+
+        echo "Release files:"
         ls -la release/
         
     - name: Generate release tag
