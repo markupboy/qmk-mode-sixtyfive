@@ -2,7 +2,7 @@
 # All unnecessary features disabled to minimize input lag
 
 TAP_DANCE_ENABLE = no
-RGBLIGHT_ENABLE = no
+RGBLIGHT_ENABLE = yes
 AUTO_SHIFT_ENABLE = no
 CAPS_WORD_ENABLE = no
 MOUSEKEY_ENABLE = no

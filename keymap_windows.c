@@ -15,6 +15,12 @@
  */
 #include QMK_KEYBOARD_H
 
+void keyboard_post_init_user(void) {
+    rgblight_enable_noeeprom();
+    rgblight_mode_noeeprom(RGBLIGHT_MODE_STATIC_LIGHT);
+    rgblight_sethsv_noeeprom(0, 0, 255);  // White
+}
+
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 [0] = LAYOUT_65_ansi_blocker(
     QK_GESC, KC_1   , KC_2   , KC_3   , KC_4  , KC_5    , KC_6   , KC_7   , KC_8   , KC_9   , KC_0   , KC_MINS, KC_EQL , KC_BSPC, KC_DEL ,
