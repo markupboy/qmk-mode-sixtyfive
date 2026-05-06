@@ -141,31 +141,8 @@ jobs:
         tag_name: ${{ steps.tag.outputs.tag }}
         name: "QMK mode/m256wh - markupboy ${{ steps.tag.outputs.tag }}"
         body: |
-          ## QMK Firmware Build
-          
-          **Keyboard:** Mode M256WH  
-          **Keymap:** markupboy (Windows & Mac variants)  
-          **Commit:** ${{ github.sha }}  
-          **Built:** ${{ github.run_id }}
-          
-          ### Files
-          - `mode_m256wh_markupboy_windows.bin` - Windows variant firmware
-          - `mode_m256wh_markupboy_mac.bin` - Mac variant firmware
-          
-          ### Key Differences
-          **Windows variant:**
-          - Standard Ctrl/Alt layout
-          - Ctrl+C/V/Z shortcuts on Layer 2
-          
-          **Mac variant:**
-          - Command (⌘) and Option (⌥) key layout
-          - Cmd+C/V/Z shortcuts on Layer 2
-          - Alt/GUI keys swapped for Mac convention
-          
-          ### How to Flash
-          1. Download the appropriate `.bin` file for your OS
-          2. Use [QMK Toolbox](https://github.com/qmk/qmk_toolbox) or your preferred flashing tool
-          3. Flash the firmware to your keyboard
+          **Commit:** ${{ github.sha }}
+        append_body: true
         files: |
           release/*
         draft: false
