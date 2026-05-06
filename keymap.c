@@ -15,6 +15,45 @@
  */
 #include QMK_KEYBOARD_H
 
+// Custom keycodes
+enum custom_keycodes {
+    // Ctrl+Alt+Tab window switcher: holds Ctrl+Alt while you tap Tab,
+    // releases the modifiers automatically after a short idle timeout.
+    CA_TAB = SAFE_RANGE,
+};
+
+#define CA_TAB_TIMEOUT 1000
+
+static bool     ca_tab_active = false;
+static uint16_t ca_tab_timer  = 0;
+
+bool process_record_user(uint16_t keycode, keyrecord_t *record) {
+    switch (keycode) {
+        case CA_TAB:
+            if (record->event.pressed) {
+                if (!ca_tab_active) {
+                    ca_tab_active = true;
+                    register_code(KC_LCTL);
+                    register_code(KC_LALT);
+                }
+                ca_tab_timer = timer_read();
+                register_code(KC_TAB);
+            } else {
+                unregister_code(KC_TAB);
+            }
+            return false;
+    }
+    return true;
+}
+
+void matrix_scan_user(void) {
+    if (ca_tab_active && timer_elapsed(ca_tab_timer) > CA_TAB_TIMEOUT) {
+        unregister_code(KC_LALT);
+        unregister_code(KC_LCTL);
+        ca_tab_active = false;
+    }
+}
+
 // RGB underglow configuration
 void keyboard_post_init_user(void) {
     // Enable RGB and set to custom coral color
@@ -76,7 +115,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     ),
     [1] = LAYOUT_65_ansi_blocker(
         KC_GRV     , KC_F1     , KC_F2  , KC_F3   , KC_F4     , KC_F5  , KC_F6  , KC_F7  , KC_F8  , KC_F9   , KC_F10 , KC_F11 , KC_F12 , _______, KC_MUTE,
-        LCA(KC_TAB), KC_HOME   , KC_UP  , KC_END  , _______   , _______, _______, _______, _______, _______ , KC_PSCR, KC_SCRL, _______, _______, KC_END,
+        CA_TAB     , KC_HOME   , KC_UP  , KC_END  , _______   , _______, _______, _______, _______, _______ , KC_PSCR, KC_SCRL, _______, _______, KC_END,
         KC_CAPS    , KC_LEFT   , KC_DOWN, KC_RIGHT, _______   , _______, KC_LEFT, KC_DOWN, KC_UP  , KC_RIGHT, _______, _______, _______         , KC_VOLU,
         _______    , LCAG(KC_Z), _______, _______ , LCAG(KC_V), QK_BOOT, _______, _______, _______, _______ , _______, _______,          KC_PGUP, KC_VOLD,
         _______    , AG_LNRM   , AG_LSWP,                            KC_MPLY,                       _______ , _______,          KC_HOME, KC_PGDN, KC_END
