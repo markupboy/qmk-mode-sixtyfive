@@ -118,6 +118,13 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         CA_TAB     , KC_HOME   , KC_UP  , KC_END  , _______   , _______, _______, _______, _______, _______ , KC_PSCR, KC_SCRL, _______, _______, KC_END,
         KC_CAPS    , KC_LEFT   , KC_DOWN, KC_RIGHT, _______   , _______, KC_LEFT, KC_DOWN, KC_UP  , KC_RIGHT, _______, _______, _______         , KC_VOLU,
         _______    , LCAG(KC_Z), _______, _______ , LCAG(KC_V), QK_BOOT, _______, _______, _______, _______ , _______, _______,          KC_PGUP, KC_VOLD,
-        _______    , AG_LNRM   , AG_LSWP,                            KC_MPLY,                       _______ , _______,          KC_HOME, KC_PGDN, KC_END
+        _______    , _______   , MO(2)  ,                            KC_MPLY,                       _______ , _______,          KC_HOME, KC_PGDN, KC_END
+    ),
+    [2] = LAYOUT_65_ansi_blocker(
+        _______      , LCAG(KC_1)   , LCAG(KC_2)   , LCAG(KC_3)   , LCAG(KC_4)   , LCAG(KC_5)   , LCAG(KC_6)   , LCAG(KC_7)   , LCAG(KC_8)   , LCAG(KC_9)   , LCAG(KC_0)   , LCAG(KC_MINS), LCAG(KC_EQL) , LCAG(KC_BSPC), LCAG(KC_DEL) ,
+        _______      , LCAG(KC_Q)   , LCAG(KC_W)   , LCAG(KC_E)   , LCAG(KC_R)   , LCAG(KC_T)   , LCAG(KC_Y)   , LCAG(KC_U)   , LCAG(KC_I)   , LCAG(KC_O)   , LCAG(KC_P)   , LCAG(KC_LBRC), LCAG(KC_RBRC), LCAG(KC_BSLS), LCAG(KC_HOME),
+        _______      , LCAG(KC_A)   , LCAG(KC_S)   , LCAG(KC_D)   , LCAG(KC_F)   , LCAG(KC_G)   , LCAG(KC_H)   , LCAG(KC_J)   , LCAG(KC_K)   , LCAG(KC_L)   , LCAG(KC_SCLN), LCAG(KC_QUOT), LCAG(KC_ENT)                 , LCAG(KC_PGUP),
+        _______      , LCAG(KC_Z)   , LCAG(KC_X)   , LCAG(KC_C)   , LCAG(KC_V)   , LCAG(KC_B)   , LCAG(KC_N)   , LCAG(KC_M)   , LCAG(KC_COMM), LCAG(KC_DOT) , LCAG(KC_SLSH), LCAG(KC_RSFT),                 LCAG(KC_UP)  , LCAG(KC_PGDN),
+        _______      , _______      , _______      ,                              LCAG(KC_SPC) ,                              _______      , _______      ,                 LCAG(KC_LEFT), LCAG(KC_DOWN), LCAG(KC_RGHT)
     ),
 };
